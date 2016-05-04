@@ -1,34 +1,32 @@
 ---
-title: "BIO260 Final Project - Yelp Reviews"
+title: "How to get a 5 star rating: an analysis of Yelp reviews"
 author: "Xuezhi Dong and Shihao Zhu"
 output: html_document
 ---
-
-# BIO260 Final Project - Analysis of Yelp Reviews
-##*Authors: Xuezhi Dong and Shihao Zhu*
+### BIO260 Final Project 
 
 ***
 
 ## Background and Motivation
 
-As one of our most used apps, Yelp provides us with useful information on restaurants' hours, food type, and price range. More importantly, we are able to instantly compare restaurants through user reviews that are conveniently displayed in a 5 star scale. In this project, we aim to use the skills we learned throughout the course to 
-* Obtain Yelp user review dataset by web scrapping
-* Cleaning up the data through wrangling 
-* Visualize the data
-* Create a statistical model using data we have collected
-* Test the model we built with new data
-* Finally, communicate the results through website and webcast
+As one of our most used web tools, Yelp provides us with useful information on restaurants' hours, food type, and price range. More importantly, we are able to instantly compare restaurants through user reviews that are conveniently displayed in a 5 star scale. In this project, we aim to use the skills we learned throughout the course to 
+
+- Obtain Yelp user review dataset by web scrapping
+- Cleaning up the data through wrangling 
+- Visualize the data
+- Create a statistical model using data we have collected
+- Test the model we built with new data
+- Finally, communicate the results through website and webcast
 
 ***
 
-## Obtaining Data: web scrapping and Wrangling
+## Obtaining Data: Web Scrapping and Wrangling
 
-We will first scrape the data from Yelp website. We used a Googlechrome extension called [WebScraper](https://chrome.google.com/webstore/detail/web-scraper/jnhgnonknehpejjnehehllkliplmbmhn?hl=en) to obtain our initial dataset. 
+We will first scrape the data from the Yelp website. We used a Google Chrome extension called [WebScraper](https://chrome.google.com/webstore/detail/web-scraper/jnhgnonknehpejjnehehllkliplmbmhn?hl=en) to obtain our initial dataset. 
 
-In total, we scrapped data for 1000 restaurants in Boston
+In total, we scrapped data for 1000 restaurants in Boston, which appeared in the first 10 pages of search results. 
 
-
-```{r}
+```{r, warning=FALSE}
 library(stringr) ## for str_split_fixed
 library(dplyr)
 library(tidyr) ## for separate function
@@ -45,14 +43,14 @@ data <- read.csv("Yelp_data.csv", comment.char="#")
 data <- data[,-c(2,4)] 
 ```
 
-However, the data obtained by the WebScraper is quite messy and required extensive wrangling. For example, no overall rating scores were reported, attributes and result were in the same unit, weekly hours needs to be calculated. So further data cleaning are required. 
+However, the data obtained by the WebScraper is quite messy and required extensive wrangling. For example, no overall rating scores were reported, and attributes and result were in the same unit.  So further data cleaning are required. 
 
 ```{r, warning=FALSE}
-## Data directly scrapped from Yelp were not good enough for analysis, so we will do some wrangling. 
+## Data directly scrapped from Yelp were not good enough for analysis, so we will do some wrangling. Here we can see the attributes and results are both presented as columns. 
 data[1,30] 
 ## we need to seperate result from attribution
 
-## Separate each attribution unit by " " (space) for column 1 to 23
+## Separate each attribution unit by " " (space) for columns
 data <- data %>% separate(col=column5, into=c("attribute#1","attribute#2","attribute#3","attribute#4"), sep=" ", fill="right") 
 data <- data %>% separate(col=column6, into=c("attribute#1","attribute#2","attribute#3","attribute#4"), sep=" ", fill="right") 
 data <- data %>% separate(col=column7, into=c("attribute#1","attribute#2","attribute#3","attribute#4"), sep=" ", fill="right") 
@@ -75,7 +73,7 @@ data <- data %>% separate(col=column23, into=c("attribute#1","attribute#2","attr
 
 ```
 
-After separating the columns, we will now use pattern recognition to identify value for the Wi-Fi attribute as an example. 
+After separating the columns, we will now use pattern recognition to identify the value for the Wi-Fi attribute as an example. 
 
 ```{r}
 ## Machine Learning codes
@@ -142,7 +140,7 @@ data$seating_rate <- ifelse(data$seating %in% "Yes",1,0)
 table(data$seating_rate)
 ```
 
-For reservation, delivery, takeout, creditcard attributes:
+For reservation, delivery, takeout, credit card attributes:
 
 ```{r}
 data$reservation_rate <- ifelse(data$reservation=="Yes",1,0)
@@ -151,7 +149,13 @@ data$takeout_rate <- ifelse(data$takeout=="Yes",1,0)
 data$creditcard_rate <- ifelse(data$creditcard=="Yes",1,0)
 ```
 
-After cleaning the attributes information, we will also need to calculate rating value. We will name this "rate"
+After cleaning the attributes information, we will also need to calculate rating value. 
+
+By using the data for how many users gave 1-5 stars for each restaurant, we are able to calculate a continuous rating for each restaurant. The final 5-star scale Yelp is simply this continuous rating rounded to nearest 0.5. 
+
+We will name this continuous variable "rate"
+
+We also calculated the number of raters, which is simply the sum of raters in each star category. 
 
 ```{r}
 data$rate <- (data$X5star*5 +data$X4star*4 +data$X3star*3 +data$X2star*2 +data$X1star)/(data$X5star +data$X4star +data$X3star +data$X2star +data$X1star)
@@ -169,7 +173,7 @@ data2 <- data[,c(1:16,98,100,102,104,106,109:112,107,108)]
 names(data2)
 ```
 
-Lastly, we will calculate the actual Yelp star rating by rounding the rating column to nearest 0.5. We inspected a few restaurants and our calculations seem to match Yelps website data. 
+Lastly, we will calculate the actual Yelp star rating by rounding the rating column to nearest 0.5. We inspected a few restaurants and our calculations match Yelp's website data. 
 
 ```{r}
 data3 <- data2 %>%
@@ -195,20 +199,20 @@ count(data3, yelp_rating)
 
 It looks like majority of our ratings are 3.5-4.0. We have 15 restaurants with 5 star rating and 1 with 2 star rating.
 
-We then want to summarize the attributes based for the different rating categories
+We then want to summarize the attributes for the different rating categories
 
 ```{r}
 table <- data3 %>% group_by(yelp_rating) %>% summarise(page=mean(page),raters=mean(numberrate),takeout=mean(takeout_rate),alcohol=mean(alcohol_rate),noise=mean(noise_rate)) %>% ungroup()
-kable(table)              
-                                                               
+kable(round(table, digits=2))             
 ```  
 
 Here are the descriptions of the table columns: 
-* page - the page number that the restaurant appear in. So if page=5, then the restaurant appeared in page 5 of the search. Thus, on average, our 4.0 rating restaurants appeared on page 37. 
-* raters - the number of users providing the rating for the restaurant
-* takeout - percentage of restaurants providing takeout option
-* alcohol - percentage of restaurants serving alcohol
-* noise - percentage of restaurants that are listed as noisy
+
+- page - the page number that the restaurant appeared in. So if page=5, then the restaurant appeared in page 5 of the search. Thus, on average, our 4.0 rating restaurants appeared on page 37
+- raters - the number of users providing the rating for the restaurant
+- takeout - percentage of restaurants providing takeout service
+- alcohol - percentage of restaurants serving alcohol
+- noise - percentage of restaurants that are listed as noisy
 
 We will now graph the data to see the trends
 
@@ -234,23 +238,25 @@ abline(lm(table$noise ~ table$yelp_rating))
 
 
 Here is what we have noticed: 
-* Higher rated restaurants tend to appear earlier in the search, except 5.0 restaurants. This is suggest that the Yelp search algorithm tend to return higher rated restaurants first. 
-* The more reviewers a restaurant has, the more likely it is to have a medium rating. This corresponds with the law of large numbers - the more samples we take, the more likely we are to approach the true mean. In this case, the more ratings (samples) we have, the less likely we get an extreme (2.0 or 5.0) rating. 
-* The higher rated restaurants are less likely to offer takeout, serve alcohol or are noisy. 
+
+- Higher rated restaurants tend to appear earlier in the search, except 5.0 restaurants. This is suggest that the Yelp search algorithm tend to return higher rated restaurants first. 
+- The more reviewers a restaurant has, the more likely it is to have a medium rating. This corresponds with the law of large numbers - the more samples we take, the more likely we are to approach the true mean. In this case, the more ratings (samples) we have, the less likely we get an extreme (2.0 or 5.0) rating. 
+- The higher rated restaurants are less likely to offer takeout, serve alcohol or be noisy. 
 
 Note
-* We have a sample size of 1 for 2 star rated restaurants, so it's not really meaningful to assess trend with it. 
+
+- We have a sample size of 1 for 2 star rated restaurants, so it's not really meaningful to assess trend with it. 
 
 
 ***
 
-## Geographical distribution of Yelp Ratings
+## Geographic Distribution of Yelp Ratings
 
 We are interested in visualizing how Yelp Rating is distributed geographically in the city of Boston. 
 
-We will first obtain the geographic coordinates for each restaurants using ggmap package. 
+We will first obtain the geographic coordinates for each restaurants using the ggmap package. 
 
-```{r}
+```{r, warning=FALSE}
 # Convert address into coordinates using ggmap package
 library(ggplot2)
 library(ggmap)
@@ -270,10 +276,10 @@ get_lon <- function(address){
 
 Since there is a 2500 limit for geocode() function and it takes a while to get all the coordinates, we will show the code here and load the data from an existing .csv file for knitting. 
 
-# Add coordinate data to dataframe
+Add coordinate data to dataframe (not run)
 data3 <- data3 %>% mutate(lat=get_lat(as.character(address)), lon=get_lon(as.character(address)))
 
-# Save as .csv file
+Save as .csv file (not run)
 write.csv(data3, "Cleandata_coor.csv", row.names=FALSE)
 
 ```{r}
@@ -298,110 +304,204 @@ ggmap(map) + geom_point(aes(x=lon, y=lat), data=filter(dat2, yelp_rating>=4.5), 
 
 ```
 
-There does not appear to be any obvious geographical clutering of highly rated restaurants (>=4.5 stars rating). However, it seems that East Boston has a greater number of highly rated restaurants compared to other areas. 
+There does not appear to be any obvious geographic clutering of highly rated restaurants (>=4.5 stars rating). However, it seems that East Boston has a greater number of highly rated restaurants compared to other areas. 
 
 ***
 
 ## Building regression model of Yelp Ratings data
 
-# Linear regression model
+### Linear regression model
 First, we will create a linear regression model to predict the continuous numberical ratings before converting to the Yelp 5 star scale. 
 
 The predictor variables we included in the model include 
-* Whether the restaurants take reservation
-* The page number it appears in
-* The total number of user reviews
-* Whether it delivers
-* Whether it provides takeout service
-* Whether it takes credit card, 
-* Whether there is WiFi
-* Whether there is TV
-* whether there is outside seating 
-* Whether it serves alcohol
-* Whether is is reported as noisy
+
+- Whether the restaurants take reservation
+- The page number it appears in
+- The total number of user reviews
+- Whether it delivers
+- Whether it provides takeout service
+- Whether it takes credit card
+- Whether there is WiFi
+- Whether there is TV
+- whether there is outside seating 
+- Whether it serves alcohol
+- Whether is is reported as noisy
 
 ```{r}
 fit <- lm(rate ~ reservation_rate + page + numberrate + delivery_rate + takeout_rate + creditcard_rate + wifi_rate + TV_rate + seating_rate + alcohol_rate + noise_rate, data=data3)
 summary(fit)
 ```
 
-It turns out that our model had a R^2 of 0.403 and the following factors were significant predictors of a decreasing in continuous rating:  
-* The page number it appears in
-* The total number of user reviews
-* Whether it provides takeout service
-* Whether it takes credit card, 
-* Whether there is TV
-* Whether it serves alcohol
-* Whether is is reported as noisy
+It turns out that our model had a R^2^ of 0.403 and the following factors were significant predictors of a decrease in continuous rating:  
 
-To see how good our model is, we will fit the model using our existing dataset and see how well we can predict the ratings.
+- The page number it appears in
+- The total number of user reviews
+- Whether it provides takeout service
+- Whether it takes credit card, 
+- Whether there is TV
+- Whether it serves alcohol
+- Whether is is reported as noisy
+
+To see how good our model is, we will fit the model using our training (Boston) dataset and see how well we can predict the ratings.
 
 ```{r}
 par(mfrow=c(1,1))
 data3$predict <-predict(fit)
-plot(data3$rate,data3$predict)
-abline(lm(data3$predict~data3$rate), col="red")
+plot(data3$rate,data3$predict, main = "Boston Prediction vs. Obervation (Linear Model)", xlab = "Rate_Observation", ylab = "Rate_Prediction")
 cor(data3$rate,data3$predict)
 ```
 
-Our predicted values had a 0.63 correlation with the observed values, which is not bad :). 
+Our predicted values had a 0.635 correlation with the observed values, which is not bad :). 
 
-# Logistic regression model
+### Logistic regression model
 
 We wanted to see whether different methods of modeling could improve our ability to predict Yelp ratings based on the attributes we collected. 
 
-In this case the outcome is whether the restaurant achieved a 4.5 or 5.0 star rating. The predictor variables are the same. 
+In this case the outcome is whether the restaurant achieved a 4.5 or 5.0 star rating. The predictor variables are the same as our linear model.  
 
 ```{r}
+# Next we will create a logistic regression model
 data3$log_rate <- ifelse(data3$yelp_rating < 4.5,0,1)
 logit <- glm(log_rate ~ page + numberrate + reservation_rate + delivery_rate + takeout_rate + creditcard_rate + wifi_rate + TV_rate + seating_rate + alcohol_rate + noise_rate, data=data3, family = "binomial")
 summary(logit)
 ```
 
-For the logistic regression model, the following variables were significant: 
-* The page number it appears in
-* The total number of user reviews
-* Whether it provides takeout service
-* Whether it serves alcohol
-* Whether is is reported as noisy
+To verify the validity of our logistic regression model, we ran a Hosmer and Lemeshow Goodness of Fit test
+
+```{r, warning=FALSE}
+# Verify Logistic regression model
+library(ResourceSelection)
+hoslem.test(data3$log_rate, fitted(logit))
+```
+
+Our goodness of fit test had a P-value > 0.05. Therefore, we do not have sufficient evidence to reject the null hypothesis that the prediction is the same as the observations. Therefore, our model is valid. 
+
+For the logistic regression model, we observed that the following variables were significant predictors of a >=4.5 star rating: 
+
+- The page number it appears in
+- The total number of user reviews
+- Whether it provides takeout service
+- Whether it serves alcohol
+- Whether is is reported as noisy
+
+To see how our model fits to our training (Boston) data, we wanted to see how accurate our prediction is. 
+
+```{r}
+# Testing logistic Regression Model on Boston data
+data3$predictlog <-predict.glm(logit)
+data3$log_rate_prediction <- ifelse(data3$predictlog < 0.5,0,1)
+data3$log_test <- ifelse(data3$log_rate_prediction == data3$log_rate,"Correct","Wrong")
+table(data3$log_test)
+
+```
+
+Using our original training dataset, our model predicted 86.6% of the binary ratings correct (either < or >=4.5 stars). 
 
 ***
 
-## Testing the model we built on new dataset
+## Testing the Model with a New Dataset
 
 Now that we created a model using linear and logistic regression methods, we will now test our model on a test dataset. 
 
-We have scrapped another 200 restaurants from Cambridge with which we will test our model. The data was wrangled in the identical fashion as the Boston restaurants. 
+We have scrapped another 201 restaurants from Cambridge with which we will test our model. The data were wrangled in the identical fashion as the Boston restaurants (not shown). We also added coordinates data as well using the above functions.  
+
+Location data codes (not run): 
+data_cam <- data_cam %>% mutate(lat=get_lat(as.character(address)), lon=get_lon(as.character(address)))
+write.csv(data_cam, "Cleandata_cambridge_coor.csv", row.names=FALSE)
 
 ```{r}
 # Here we will obtain the wrangled data from a .csv file
-data_cam <- read.csv("Cleandata_cambridge.csv", comment.char="#")
+data_cam <- read.csv("Cleandata_cambridge_coor.csv", comment.char="#")
 
 ```
 
 We will do a quick exploration of the new test dataset. 
 
 ```{r}
-table2 <- data_cam %>% group_by(yelp_rating) %>% summarise(page=mean(page),raters=mean(numberrate),takeout=mean(takeout_rate),alcohol=mean(alcohol_rate),noise=mean(noise_rate)) %>% ungroup()
-kable(table2) 
+# Summarize the data
+summary(data_cam$yelp_rating)
+count(data_cam, yelp_rating)
 
+# Examine attributes by Yelp rating
+table2 <- data_cam %>% group_by(yelp_rating) %>% summarise(page=mean(page),raters=mean(numberrate),takeout=mean(takeout_rate),alcohol=mean(alcohol_rate),noise=mean(noise_rate)) %>% ungroup()
+kable(round(table2, digits=2)) 
 ```
 
+The trends in our new Cambridge dataset is the same as we observed in the Boston dataset. 
+
+### Testing linear regression model 
+
+We will test our linear model against new Cambridge dataset. 
 
 ```{r}
-data_cam$log_rate <- ifelse(data_cam$yelp_rating < 4.5,0,1)
 data_cam$predict <-predict(fit,newdata =data_cam )
-plot(data_cam$rate,data_cam$predict)
+plot(data_cam$rate,data_cam$predict, main = "Cambridge Prediction vs. Obervation (Linear Model)", xlab = "Rate_Observation", ylab = "Rate_Prediction")
 cor(data_cam$rate,data_cam$predict)
+```
 
+Our predicted continuous rating data has a correlation of 0.503 with the observations. 
 
+### Testing logistic regression model
+
+Let's now test our logistic regression model against new Cambridge dataset. 
+
+```{r}
+# Generating predictions
+data_cam$predictlog <-predict.glm(logit,newdata =data_cam)
+
+# We will use a cut off of 0.5. If predicted value < 0.5, we designate the predicted outcome as 0, and if the predicted value is >= 0.5 we designate the predicted outcome as 1. 
+data_cam$log_rate_prediction <- ifelse(data_cam$predictlog < 0.5,0,1)
+
+# Now let's check to see if our predictions were correct
+data_cam$log_test <- ifelse(data_cam$log_rate_prediction == data_cam$log_rate, "Correct", "Wrong")
+table(data_cam$log_test)
+```
+
+We had an accuracy of 92.03% with our logistic regression model!! 
+
+### Visualizing our predictions on map
+
+To see the power of our models in predicting Yelp ratings, we will plot the results on a map. 
+
+Let's first map all the restaurants in Cambridge. Colors are different based on rating
+
+```{r, message=FALSE, warning=FALSE}
+map <- get_map(location='cambridge', source="stamen", maptype="terrain", zoom=13)
+ggmap(map) + geom_point(aes(x=lon, y=lat), data=data_cam, color=data_cam$yelp_rating)
+```
+
+Next we will map the restaurants by whether we our model correctly predicted whether the rating was >=4.5 stars. 
+
+```{r, message=FALSE, warning=FALSE}
+map <- get_map(location='cambridge', source="stamen", maptype="terrain", zoom=13)
+ggmap(map) + geom_point(aes(x=lon, y=lat), data=filter(data_cam, log_test=="Wrong"), color="red") + geom_point(aes(x=lon, y=lat), data=filter(data_cam, log_test=="Correct"), color="green")
 
 ```
 
+Looks good! 
 
+## Conclusion
 
+In conclusion, we started this project wanting to understand the contributors to Yelp user ratings and find ways to predict ratings through modeling. 
 
+We scrapped and wrangled the data of a total of 1,021 restaurants in Boston and Cambridge and explored the data. We also visualized how the restaurant ratings were distributed geographically in Boston. 
 
+Next, we constructed a linear model to predicted the continous rating score from Yelp and was able to obtain a 0.634 correlation to training (Boston) data and 0.503 correlation to the test (Cambridge) data. Our explanatory variables account for 40.3% of the variations in the data. 
 
+Finally, we contructed a logistic regression model to predict the calculated yelp categorical scores (rounded to 0.5), and we obtained 86.6% accuracy with training data and 92.03% accuracy with the test data. 
 
+## Discussion
 
+Through our logistic model, a new restaurant is able to predict whether it will be rated above 4.5 with approximately 90% accuracy by simply using its attribute data. We offered a powerful way for restaurants to examine how they could potentially improve their using ratings by changing their attributes such as whether to serve alcohol or have a noise ambience. 
+
+One of the key limitation we saw was the role of page number and total number of raters. Page number was a significant predictor of Yelp ratings, which we hypothesis is due to Yelp displaying higher rated restaurant earlier in its search algorithm. Thus is would be a major confounder in our explanatory model. 
+
+We have also observed that restaurants with higher number of raters tend to have medium ratings, which suggests that taking a greater sample size will produce closer to average results. 
+
+Lastly, we were not able to obtain price data and did not use open hour data in our analysis. We believe incorporating these data points could improve the explanatory power of our model. 
+
+## Acknowledgement
+
+Thank you very much for a great course. We learned a lot, and we appreciate the hard work the course staff have devoted to educate us in the magic of data science. 
+
+*Zhi Dong and Shihao Zhu*
