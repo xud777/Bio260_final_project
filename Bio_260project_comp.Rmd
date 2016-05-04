@@ -1,0 +1,407 @@
+---
+title: "BIO260 Final Project - Yelp Reviews"
+author: "Xuezhi Dong and Shihao Zhu"
+output: html_document
+---
+
+# BIO260 Final Project - Analysis of Yelp Reviews
+##*Authors: Xuezhi Dong and Shihao Zhu*
+
+***
+
+## Background and Motivation
+
+As one of our most used apps, Yelp provides us with useful information on restaurants' hours, food type, and price range. More importantly, we are able to instantly compare restaurants through user reviews that are conveniently displayed in a 5 star scale. In this project, we aim to use the skills we learned throughout the course to 
+* Obtain Yelp user review dataset by web scrapping
+* Cleaning up the data through wrangling 
+* Visualize the data
+* Create a statistical model using data we have collected
+* Test the model we built with new data
+* Finally, communicate the results through website and webcast
+
+***
+
+## Obtaining Data: web scrapping and Wrangling
+
+We will first scrape the data from Yelp website. We used a Googlechrome extension called [WebScraper](https://chrome.google.com/webstore/detail/web-scraper/jnhgnonknehpejjnehehllkliplmbmhn?hl=en) to obtain our initial dataset. 
+
+In total, we scrapped data for 1000 restaurants in Boston
+
+
+```{r}
+library(stringr) ## for str_split_fixed
+library(dplyr)
+library(tidyr) ## for separate function
+library(knitr)
+```
+
+Here, we import the data obtained from WebScrapper. 
+
+```{r} 
+## loading data from WebScrapper
+data <- read.csv("Yelp_data.csv", comment.char="#")
+
+## Remove website address from the output dataset
+data <- data[,-c(2,4)] 
+```
+
+However, the data obtained by the WebScraper is quite messy and required extensive wrangling. For example, no overall rating scores were reported, attributes and result were in the same unit, weekly hours needs to be calculated. So further data cleaning are required. 
+
+```{r, warning=FALSE}
+## Data directly scrapped from Yelp were not good enough for analysis, so we will do some wrangling. 
+data[1,30] 
+## we need to seperate result from attribution
+
+## Separate each attribution unit by " " (space) for column 1 to 23
+data <- data %>% separate(col=column5, into=c("attribute#1","attribute#2","attribute#3","attribute#4"), sep=" ", fill="right") 
+data <- data %>% separate(col=column6, into=c("attribute#1","attribute#2","attribute#3","attribute#4"), sep=" ", fill="right") 
+data <- data %>% separate(col=column7, into=c("attribute#1","attribute#2","attribute#3","attribute#4"), sep=" ", fill="right") 
+data <- data %>% separate(col=column8, into=c("attribute#1","attribute#2","attribute#3","attribute#4"), sep=" ", fill="right") 
+data <- data %>% separate(col=column9, into=c("attribute#1","attribute#2","attribute#3","attribute#4"), sep=" ", fill="right") 
+data <- data %>% separate(col=column10, into=c("attribute#1","attribute#2","attribute#3","attribute#4"), sep=" ", fill="right") 
+data <- data %>% separate(col=column11, into=c("attribute#1","attribute#2","attribute#3","attribute#4"), sep=" ", fill="right") 
+data <- data %>% separate(col=column12, into=c("attribute#1","attribute#2","attribute#3","attribute#4"), sep=" ", fill="right") 
+data <- data %>% separate(col=column13, into=c("attribute#1","attribute#2","attribute#3","attribute#4"), sep=" ", fill="right") 
+data <- data %>% separate(col=column14, into=c("attribute#1","attribute#2","attribute#3","attribute#4"), sep=" ", fill="right") 
+data <- data %>% separate(col=column15, into=c("attribute#1","attribute#2","attribute#3","attribute#4"), sep=" ", fill="right") 
+data <- data %>% separate(col=column16, into=c("attribute#1","attribute#2","attribute#3","attribute#4"), sep=" ", fill="right") 
+data <- data %>% separate(col=column17, into=c("attribute#1","attribute#2","attribute#3","attribute#4"), sep=" ", fill="right") 
+data <- data %>% separate(col=column18, into=c("attribute#1","attribute#2","attribute#3","attribute#4"), sep=" ", fill="right") 
+data <- data %>% separate(col=column19, into=c("attribute#1","attribute#2","attribute#3","attribute#4"), sep=" ", fill="right") 
+data <- data %>% separate(col=column20, into=c("attribute#1","attribute#2","attribute#3","attribute#4"), sep=" ", fill="right") 
+data <- data %>% separate(col=column21, into=c("attribute#1","attribute#2","attribute#3","attribute#4"), sep=" ", fill="right") 
+data <- data %>% separate(col=column22, into=c("attribute#1","attribute#2","attribute#3","attribute#4"), sep=" ", fill="right")
+data <- data %>% separate(col=column23, into=c("attribute#1","attribute#2","attribute#3","attribute#4"), sep=" ", fill="right")
+
+```
+
+After separating the columns, we will now use pattern recognition to identify value for the Wi-Fi attribute as an example. 
+
+```{r}
+## Machine Learning codes
+## Locate where the word "Wi-Fi" is and take the right unit as result for wifi. 
+data$wifi <- "No"
+for (i in 1:1000) {
+  for (j in 21:96) {
+    ifelse(data[i,j] %in% "Wi-Fi", data$wifi[i] <- data[i,j+1], NA)
+  }
+}
+table(data$wifi)
+## Note that there are three results: "Free", "No", "Paid", we assigned 1 to restaurant with Free or Paid wifi and 0 to those without wifi
+data$wifi_rate <- ifelse(data$wifi %in% c("Free","Paid"),1,0)
+table(data$wifi_rate)
+```
+
+Then we will apply the same strategy to the rest of the attributes. 
+
+```{r}
+##TV
+for (i in 1:1000) {
+  for (j in 21:96) {
+    ifelse(data[i,j] %in% "TV", data$TV[i] <- data[i,j+1], NA)
+  }
+}
+table(data$TV)
+data$TV_rate <- ifelse(data$TV=="Yes",1,0)
+table(data$TV_rate)
+```
+
+```{r}
+##noise level
+for (i in 1:1000) {
+  for (j in 21:96) {
+    ifelse(data[i,j] %in% "Level", data$noise[i] <- data[i,j+1], NA)
+  }
+}
+table(data$noise)
+data$noise_rate <- ifelse(data$noise %in% c("Loud","Very"),1,0)
+table(data$noise_rate)
+```
+
+```{r}
+## alcohol
+for (i in 1:1000) {
+  for (j in 21:96) {
+    ifelse(data[i,j] %in% "Alcohol", data$alcohol[i] <- data[i,j+1], NA)
+  }
+}
+table(data$alcohol)
+data$alcohol_rate <- ifelse(data$alcohol %in% c("Beer","Full"),1,0)
+table(data$alcohol_rate)
+```
+
+```{r}
+## seating
+for (i in 1:1000) {
+  for (j in 21:96) {
+    ifelse(data[i,j] %in% "Seating", data$seating[i] <- data[i,j+1], NA)
+  }
+}
+table(data$seating)
+data$seating_rate <- ifelse(data$seating %in% "Yes",1,0)
+table(data$seating_rate)
+```
+
+For reservation, delivery, takeout, creditcard attributes:
+
+```{r}
+data$reservation_rate <- ifelse(data$reservation=="Yes",1,0)
+data$delivery_rate <- ifelse(data$delivery=="Yes",1,0)
+data$takeout_rate <- ifelse(data$takeout=="Yes",1,0)
+data$creditcard_rate <- ifelse(data$creditcard=="Yes",1,0)
+```
+
+After cleaning the attributes information, we will also need to calculate rating value. We will name this "rate"
+
+```{r}
+data$rate <- (data$X5star*5 +data$X4star*4 +data$X3star*3 +data$X2star*2 +data$X1star)/(data$X5star +data$X4star +data$X3star +data$X2star +data$X1star)
+data$numberrate<- data$X5star +data$X4star +data$X3star +data$X2star +data$X1star
+```
+
+We will then select the desired columns for further analysis. 
+
+```{r}
+# We will only keep the data fields we want
+names(data)
+data2 <- data[,c(1:16,98,100,102,104,106,109:112,107,108)]
+
+# To check all the data are here
+names(data2)
+```
+
+Lastly, we will calculate the actual Yelp star rating by rounding the rating column to nearest 0.5. We inspected a few restaurants and our calculations seem to match Yelps website data. 
+
+```{r}
+data3 <- data2 %>%
+  mutate(yelp_rating=(round(rate/0.5)*0.5))
+```
+
+Here we will download our data as a .csv file to save progress. (We will not run these codes again for knitting, so the codes are displayed but not run)
+
+write.csv(data2, "Cleandata.csv", row.names=FALSE)
+
+***
+
+## Exploratory Data Analysis (EDA)
+
+With the wranggled dataset, now we want to explore the data through EDA techniques
+
+```{r}
+# First, we will look at the distribution of star ratings for the restaurants we got
+summary(data3$yelp_rating)
+count(data3, yelp_rating)
+
+```
+
+It looks like majority of our ratings are 3.5-4.0. We have 15 restaurants with 5 star rating and 1 with 2 star rating.
+
+We then want to summarize the attributes based for the different rating categories
+
+```{r}
+table <- data3 %>% group_by(yelp_rating) %>% summarise(page=mean(page),raters=mean(numberrate),takeout=mean(takeout_rate),alcohol=mean(alcohol_rate),noise=mean(noise_rate)) %>% ungroup()
+kable(table)              
+                                                               
+```  
+
+Here are the descriptions of the table columns: 
+* page - the page number that the restaurant appear in. So if page=5, then the restaurant appeared in page 5 of the search. Thus, on average, our 4.0 rating restaurants appeared on page 37. 
+* raters - the number of users providing the rating for the restaurant
+* takeout - percentage of restaurants providing takeout option
+* alcohol - percentage of restaurants serving alcohol
+* noise - percentage of restaurants that are listed as noisy
+
+We will now graph the data to see the trends
+
+```{r}
+par(mfrow=c(2,3))
+
+plot(table$yelp_rating,table$alcohol, main = "Alcohol", xlab = "Yelp Rating", ylab = "Percentage of Alcohol",pch=16,col="red",cex=1.5)
+abline(lm(table$alcohol ~ table$yelp_rating))
+
+plot(table$yelp_rating,table$page, main = "Page", xlab = "Yelp Rating", ylab = "Mean Page Number",pch=16,col="red",cex=1.5)
+abline(lm(table$page ~ table$yelp_rating))
+
+plot(table$yelp_rating,table$raters, main = "Raters", xlab = "Yelp Rating", ylab = "Mean number of raters",pch=16,col="red",cex=1.5)
+abline(lm(table$raters ~ table$yelp_rating))
+
+plot(table$yelp_rating,table$takeout, main = "Takeout", xlab = "Yelp Rating", ylab = "Percentage of Takeout Service",pch=16,col="red",cex=1.5)
+abline(lm(table$takeout ~ table$yelp_rating))
+
+plot(table$yelp_rating,table$noise, main = "Noise", xlab = "Yelp Rating", ylab = "Percentage of Reported Noise",pch=16,col="red",cex=1.5)
+abline(lm(table$noise ~ table$yelp_rating))
+
+```
+
+
+Here is what we have noticed: 
+* Higher rated restaurants tend to appear earlier in the search, except 5.0 restaurants. This is suggest that the Yelp search algorithm tend to return higher rated restaurants first. 
+* The more reviewers a restaurant has, the more likely it is to have a medium rating. This corresponds with the law of large numbers - the more samples we take, the more likely we are to approach the true mean. In this case, the more ratings (samples) we have, the less likely we get an extreme (2.0 or 5.0) rating. 
+* The higher rated restaurants are less likely to offer takeout, serve alcohol or are noisy. 
+
+Note
+* We have a sample size of 1 for 2 star rated restaurants, so it's not really meaningful to assess trend with it. 
+
+
+***
+
+## Geographical distribution of Yelp Ratings
+
+We are interested in visualizing how Yelp Rating is distributed geographically in the city of Boston. 
+
+We will first obtain the geographic coordinates for each restaurants using ggmap package. 
+
+```{r}
+# Convert address into coordinates using ggmap package
+library(ggplot2)
+library(ggmap)
+
+# Use geocode() to obtain lat and lon
+get_lat <- function(address){
+  coordinates <- geocode(address, source="google", messaging=FALSE)
+  return(coordinates$lat)
+}
+
+get_lon <- function(address){
+  coordinates <- geocode(address, source="google", messaging=FALSE)
+  return(coordinates$lon)
+}
+
+```
+
+Since there is a 2500 limit for geocode() function and it takes a while to get all the coordinates, we will show the code here and load the data from an existing .csv file for knitting. 
+
+# Add coordinate data to dataframe
+data3 <- data3 %>% mutate(lat=get_lat(as.character(address)), lon=get_lon(as.character(address)))
+
+# Save as .csv file
+write.csv(data3, "Cleandata_coor.csv", row.names=FALSE)
+
+```{r}
+dat <- read.csv("C:/Users/Zhi/git_dir/final_project/Cleandata_coor.csv")
+dat2 <- tbl_df(dat)
+```
+
+We will now plot the data on map of Boston
+
+```{r, warning=FALSE, message=FALSE}
+# Map restaurants in dataset. Colors are different based on rating
+map <- get_map(location='boston', source="stamen", maptype="terrain", zoom=13)
+ggmap(map) + geom_point(aes(x=lon, y=lat), data=dat2, color=dat2$yelp_rating)
+
+# Now we will map restaurants with >=4.5 stars in rating in red and rest in blue
+map <- get_map(location='boston', source="stamen", maptype="terrain", zoom=13)
+ggmap(map) + geom_point(aes(x=lon, y=lat), data=filter(dat2, yelp_rating>=4.5), color="red") + geom_point(aes(x=lon, y=lat), data=filter(dat2, yelp_rating<4.5), color="blue")
+
+# We will zoom in a bit to get a better visual of downtown Boston
+map <- get_map(location='boston', source="stamen", maptype="terrain", zoom=14)
+ggmap(map) + geom_point(aes(x=lon, y=lat), data=filter(dat2, yelp_rating>=4.5), color="red") + geom_point(aes(x=lon, y=lat), data=filter(dat2, yelp_rating<4.5), color="blue")
+
+```
+
+There does not appear to be any obvious geographical clutering of highly rated restaurants (>=4.5 stars rating). However, it seems that East Boston has a greater number of highly rated restaurants compared to other areas. 
+
+***
+
+## Building regression model of Yelp Ratings data
+
+# Linear regression model
+First, we will create a linear regression model to predict the continuous numberical ratings before converting to the Yelp 5 star scale. 
+
+The predictor variables we included in the model include 
+* Whether the restaurants take reservation
+* The page number it appears in
+* The total number of user reviews
+* Whether it delivers
+* Whether it provides takeout service
+* Whether it takes credit card, 
+* Whether there is WiFi
+* Whether there is TV
+* whether there is outside seating 
+* Whether it serves alcohol
+* Whether is is reported as noisy
+
+```{r}
+fit <- lm(rate ~ reservation_rate + page + numberrate + delivery_rate + takeout_rate + creditcard_rate + wifi_rate + TV_rate + seating_rate + alcohol_rate + noise_rate, data=data3)
+summary(fit)
+```
+
+It turns out that our model had a R^2 of 0.403 and the following factors were significant predictors of a decreasing in continuous rating:  
+* The page number it appears in
+* The total number of user reviews
+* Whether it provides takeout service
+* Whether it takes credit card, 
+* Whether there is TV
+* Whether it serves alcohol
+* Whether is is reported as noisy
+
+To see how good our model is, we will fit the model using our existing dataset and see how well we can predict the ratings.
+
+```{r}
+par(mfrow=c(1,1))
+data3$predict <-predict(fit)
+plot(data3$rate,data3$predict)
+abline(lm(data3$predict~data3$rate), col="red")
+cor(data3$rate,data3$predict)
+```
+
+Our predicted values had a 0.63 correlation with the observed values, which is not bad :). 
+
+# Logistic regression model
+
+We wanted to see whether different methods of modeling could improve our ability to predict Yelp ratings based on the attributes we collected. 
+
+In this case the outcome is whether the restaurant achieved a 4.5 or 5.0 star rating. The predictor variables are the same. 
+
+```{r}
+data3$log_rate <- ifelse(data3$yelp_rating < 4.5,0,1)
+logit <- glm(log_rate ~ page + numberrate + reservation_rate + delivery_rate + takeout_rate + creditcard_rate + wifi_rate + TV_rate + seating_rate + alcohol_rate + noise_rate, data=data3, family = "binomial")
+summary(logit)
+```
+
+For the logistic regression model, the following variables were significant: 
+* The page number it appears in
+* The total number of user reviews
+* Whether it provides takeout service
+* Whether it serves alcohol
+* Whether is is reported as noisy
+
+***
+
+## Testing the model we built on new dataset
+
+Now that we created a model using linear and logistic regression methods, we will now test our model on a test dataset. 
+
+We have scrapped another 200 restaurants from Cambridge with which we will test our model. The data was wrangled in the identical fashion as the Boston restaurants. 
+
+```{r}
+# Here we will obtain the wrangled data from a .csv file
+data_cam <- read.csv("Cleandata_cambridge.csv", comment.char="#")
+
+```
+
+We will do a quick exploration of the new test dataset. 
+
+```{r}
+table2 <- data_cam %>% group_by(yelp_rating) %>% summarise(page=mean(page),raters=mean(numberrate),takeout=mean(takeout_rate),alcohol=mean(alcohol_rate),noise=mean(noise_rate)) %>% ungroup()
+kable(table2) 
+
+```
+
+
+```{r}
+data_cam$log_rate <- ifelse(data_cam$yelp_rating < 4.5,0,1)
+data_cam$predict <-predict(fit,newdata =data_cam )
+plot(data_cam$rate,data_cam$predict)
+cor(data_cam$rate,data_cam$predict)
+
+
+
+```
+
+
+
+
+
+
+
+
