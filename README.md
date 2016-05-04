@@ -1,5 +1,5 @@
 # Bio260_final_project
 
-Analysis of Yelp Reviews
+How to get a 5 star rating: an analysis of Yelp reviews
 
 Authors: Shihao Zhu and Xuezhi Dong
