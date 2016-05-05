@@ -70,7 +70,8 @@
 
 <h3>
 <a id="modeling-yelp-review-ratings-with-regression" class="anchor" href="#modeling-yelp-review-ratings-with-regression" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Modeling Yelp Review Ratings with Regression</h3>
-<p>We created a linear regression model to predict the continuous numberical ratings including:</p>
+<p>We created a linear regression model to predict the continuous numberical ratings, which are the averages of all the ratings before converting to the final Yelp rating, which is in 0.5 increments on a 5 star scale. </p>
+<p>We included the following predictor variables in our model: </p>
 <ul>
 <li>Whether the restaurants take reservation</li>
 <li>The page number it appears in</li>
@@ -84,36 +85,37 @@
 <li>Whether it serves alcohol</li>
 <li>Whether is is reported as noisy</li>
 </ul>
-<p>To see how good our model is, we will fit the model using our training (Boston) dataset and see how well we can predict the ratings.</p>
+<p>To see how good our model is, we first used our model on our training (Boston) dataset and examined how well we could predict the ratings.</p>
 <img src="https://raw.githubusercontent.com/xud777/Bio260_final_project/gh-pages/images/Prediction_Boston.png" alt="Boston_Predict">
 <p>Our predicted values had a 0.635 correlation with the observed values, which is not bad :). </p>
-<p>We also created a logistic regression model to predict the whether the restaurant achieved a 4.5 or 5.0 star rating. The predictor variables are the same as our linear model. The model is verified by Hosmer and Lemeshow Goodness of Fit test with P-value > 0.05. Therefore, we do not have sufficient evidence to reject the null hypothesis that the prediction is the same as the observations.</p>
-<p>We successfully predicted 86.6% (866 out of 1000 restaurants) of the binary ratings correct (either < or >=4.5 stars).</p>
+<p>We also created a logistic regression model to predict the whether the restaurant achieved a >=4.5 star rating. The predictor variables are the same as our linear model. The model is verified by Hosmer and Lemeshow Goodness of Fit test with P-value > 0.05. Therefore, we do not have sufficient evidence to reject the null hypothesis that the prediction is the same as the observations.</p>
+<p>Our logistic regression model accurately predicted 86.6% (866 out of 1000 restaurants) of the binary outcomes variable correct (either < or >=4.5 stars).</p>
 
 <h3>
 <a id="testing-regression-model-with-a-New-Dataset" class="anchor" href="#testing-regression-model-with-a-New-Dataset" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Testing Regression Model</h3>
-<p>In order to test our model, we scrapped another 201 restaurants from Cambridge with which we will test our model. The data were wrangled in the identical fashion as the Boston restaurants</p>
-<p>We tested our linear model against new Cambridge dataset and turned out that the correlation between prediction and observation is 0.503. </p>
-<p>We also tested our logistic regression model against new Cambridge dataset. We had an accuracy of 92.03% (185 out of 201 restaurants) with our logistic regression model!!</p>
-<p>The following map shows whether we our model correctly predicted whether the rating was >=4.5 stars (green color=Correct)</p>
+<p>In order to test our model, we scrapped another 201 restaurants from Cambridge as our test set. The data were wrangled in the identical fashion as the Boston restaurants. </p>
+<p>We tested our linear regression model with the new Cambridge dataset and obtained a correlation of 0.503 between prediction and observation. </p>
+<p>We also tested our logistic regression model with the new Cambridge dataset. We achieved an accuracy of 92.03% (185 out of 201 restaurants) with our logistic regression model predictions!!!</p>
+<p>The following map shows whether we our model was able to correctly predicted if a restaurant's rating was >=4.5 stars. Green was a correct prediction, and red was an incorrect prediction. </p>
 <img src="https://raw.githubusercontent.com/xud777/Bio260_final_project/gh-pages/images/Map_Prediction.png" alt="Map_Prediction">
 
 <h3>
 <a id="Conclusion" class="anchor" href="#Conclusion" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Conclusion</h3>
 <p>In conclusion, we started this project wanting to understand the contributors to Yelp user ratings and find ways to predict ratings through modeling.</p>
-<p>We scrapped and wrangled the data of a total of 1,201 restaurants in Boston and Cambridge and explored the data. We also visualized how the restaurant ratings were distributed geographically in Boston.</p>
+<p>We scrapped, wrangled and explored the data of a total of 1,201 restaurants in Boston and Cambridge. We also visualized how the restaurant ratings were distributed geographically in Boston.</p>
 <p>Next, we constructed a linear model to predicted the continous rating score from Yelp and was able to obtain a 0.634 correlation to training (Boston) data and 0.503 correlation to the test (Cambridge) data. Our explanatory variables account for 40.3% of the variations in the data.</p>
 <p>Finally, we contructed a logistic regression model to predict the calculated yelp categorical scores (rounded to 0.5), and we obtained 86.6% accuracy with training data and 92.03% accuracy with the test data.</p>
 
 <h3>
 <a id="Discussion" class="anchor" href="#Discussion" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Discussion</h3>
-<p>Through our logistic model, a new restaurant is able to predict whether it will be rated above 4.5 with approximately 90% accuracy by simply using its attribute data. We offered a powerful way for restaurants to examine how they could potentially improve their using ratings by changing their attributes such as whether to serve alcohol or have a noise ambience.</p>
-<p>One of the key limitation we saw was the role of page number and total number of raters. Page number was a significant predictor of Yelp ratings, which we hypothesis is due to Yelp displaying higher rated restaurant earlier in its search algorithm. Thus is would be a major confounder in our explanatory model.</p>
-<p>We have also observed that restaurants with higher number of raters tend to have medium ratings, which suggests that taking a greater sample size will produce closer to average results.</p>
+<p>Using our logistic regression models, a new restaurant is able to predict whether it will be rated above 4.5 with approximately 90% accuracy by simply using its attribute data. We offered a powerful way for restaurants to examine how they could potentially improve their user ratings by changing their attributes such as whether to serve alcohol or have a noisy ambience.</p>
+<p>Some of the key limitations we saw were the roles of page number and total number of raters. Page number was a significant predictor of Yelp ratings, which we hypothesize is due to Yelp displaying higher rated restaurant earlier in its search algorithm. Thus, it would be a major confounder in our explanatory model.</p>
+<p>We have also observed that restaurants with higher number of raters tend to have medium ratings, which suggests that taking a greater sample size will produce closer-to-average results.</p>
 <p>Lastly, we were not able to obtain price data and did not use open hour data in our analysis. We believe incorporating these data points could improve the explanatory power of our model.</p>
 <h3>
 <a id="Acknowledgement" class="anchor" href="#Acknowledgement" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Acknowledgement</h3>
-<p>Thank you very much for a great course. We learned a lot, and we appreciate the hard work the course staff have devoted to educate us in the magic of data science. -Shihao Zhu & Zhi Dong</p>
+<p>Thank you very much for a great course. We learned a lot, and we appreciate the hard work the course staff have devoted to educating us in the magic of data science. </p>
+<p><i>Shihao Zhu & Zhi Dong</i></p>
 
 
 <p>Having trouble with Pages? Check out our <a href="https://help.github.com/pages">documentation</a> or <a href="https://github.com/contact">contact support</a> and we’ll help you sort it out.</p>
