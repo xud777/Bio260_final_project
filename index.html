@@ -40,12 +40,12 @@
 
 <p>We scrapped data from 1000 restaurants in Boston, which appeared in the first 10 pages of search results, using the Google Chrome extension called <a href="https://chrome.google.com/webstore/detail/web-scraper/jnhgnonknehpejjnehehllkliplmbmhn?hl=en">WebScraper</a>. </p>
 
-<p>The raw output from the WebScrapper was quite messy and required extensive wrangling to obtain a final data set. For exmample, we used pattern recognition to identify the value for the Wi-Fi attribute, which has three result on Yelp website: "Free", "No", "Paid". We assigned 1 to restaurant with Free or Paid wifi and 0 to those without wifi. Then we will apply the same strategy to the rest of the attributes. The detailed process of collecting, cleaning and reformating work is well documented in repository </p>
+<p>The raw output from the WebScrapper was quite messy and required extensive wrangling to obtain a final data set. For example, we used pattern recognition to identify the value for the WiFi attribute, which has three result on Yelp website: "Free", "No", and "Paid". We assigned 1 to restaurants with Free or Paid WiFi and 0 to those without WiFi. We then applied the same strategy to the remaining attributes. The detailed process of collecting, cleaning and reformating the data is well described in the final report. </p>
 
 <h3>
 <a id="exploratory-data-analysis-eda" class="anchor" href="#exploratory-data-analysis-eda" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Exploratory Data Analysis (EDA)</h3>
 
-<p>We explored the wranggled dataset through EDA technoques. Majority of our ratings are 3.5-4.0. We then want to summarize the attributes for the different rating categories and graph the data to see trends. </p>
+<p>We explored the wranggled dataset through EDA techniques. We found that majority of our ratings are 3.5-4.0. We then summarized the attributes in each rating category and graphed the data to see the trends. </p>
 <img src="https://raw.githubusercontent.com/xud777/Bio260_final_project/gh-pages/images/Plot1.png" alt="Plot_1">
 <p>Here are the descriptions of the attributes: </p>
 <ul>
@@ -64,9 +64,9 @@
 
 <h3>
 <a id="geographic-distribution-of-yelp-ratings" class="anchor" href="#geographic-distribution-of-yelp-ratings" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Geographic Distribution of Yelp Ratings</h3>
-<p>We then visualized Yelp Rating geographically in the city map of Boston, using ggmap package. Restaurants with >=4.5 stars in rating are in red and rest are in blue</p>
+<p>We then visualized Yelp Rating geographically in the city map of Boston using the ggmap package. Restaurants with >=4.5 stars in rating are in red and the rest are in blue</p>
 <img src="https://raw.githubusercontent.com/xud777/Bio260_final_project/gh-pages/images/Map_Image.png" alt="Boston_map">
-<p>There does not appear to be any obvious geographic clutering of highly rated restaurants (>=4.5 stars rating). However, it seems that East Boston has a greater number of highly rated restaurants compared to other areas.</p>
+<p>There does not appear to be any obvious geographic clustering of highly rated restaurants (>=4.5 stars rating). However, it seems that East Boston has a greater number of highly rated restaurants compared to other areas.</p>
 
 <h3>
 <a id="modeling-yelp-review-ratings-with-regression" class="anchor" href="#modeling-yelp-review-ratings-with-regression" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Modeling Yelp Review Ratings with Regression</h3>
@@ -78,7 +78,7 @@
 <li>Whether it delivers</li>
 <li>Whether it provides takeout service</li>
 <li>Whether it takes credit card</li>
-<li></li>Whether there is WiFi</li>
+<li>Whether there is WiFi</li>
 <li>Whether there is TV</li> 
 <li>whether there is outside seating</li>
 <li>Whether it serves alcohol</li>
