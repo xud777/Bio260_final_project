@@ -36,9 +36,9 @@
 <h3>
 <a id="obtaining-data-web-scrapping-and-wrangling" class="anchor" href="#obtaining-data-web-scrapping-and-wrangling" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Obtaining Data: Web Scrapping and Wrangling</h3>
 
-<p>We scrapped data from 1000 restaurants in Boston using the Google Chrome extension called <a href="https://chrome.google.com/webstore/detail/web-scraper/jnhgnonknehpejjnehehllkliplmbmhn?hl=en">WebScraper</a>. </p>
+<p>We scrapped data from 1000 restaurants in Boston, which appeared the first 10 pages of search results, using the Google Chrome extension called <a href="https://chrome.google.com/webstore/detail/web-scraper/jnhgnonknehpejjnehehllkliplmbmhn?hl=en">WebScraper</a>. </p>
 
-<p>The raw output from the WebScrapper was quite messy and required extensive wrangling to obtain a final data set. </p>
+<p>The raw output from the WebScrapper was quite messy and required extensive wrangling to obtain a final data set. For example, we used pattern recognition to identify values for Wifi attributes, which originally has three results "Free", "No", "Paid" on Yelp website. we assigned 1 to restaurant with Free or Paid wifi and 0 to those without wifi for our following analysis. The detailed process of collecting, cleaning and reformating is well documented in our repository. </p>
 
 <h3>
 <a id="exploratory-data-analysis-eda" class="anchor" href="#exploratory-data-analysis-eda" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Exploratory Data Analysis (EDA)</h3>
