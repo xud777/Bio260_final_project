@@ -65,13 +65,28 @@
 <h3>
 <a id="geographic-distribution-of-yelp-ratings" class="anchor" href="#geographic-distribution-of-yelp-ratings" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Geographic Distribution of Yelp Ratings</h3>
 <p>We then visualized Yelp Rating geographically in the city map of Boston, using ggmap package. Restaurants with >=4.5 stars in rating are in red and rest are in blue</p>
-<img src="https://github.com/xud777/Bio260_final_project/blob/gh-pages/images/Map_Image.png" alt="Boston_map">
+<img src="https://raw.githubusercontent.com/xud777/Bio260_final_project/gh-pages/images/Map_Image.png" alt="Boston_map">
 <p>There does not appear to be any obvious geographic clutering of highly rated restaurants (>=4.5 stars rating). However, it seems that East Boston has a greater number of highly rated restaurants compared to other areas.</p>
-
 
 <h3>
 <a id="modeling-yelp-review-ratings-with-regression" class="anchor" href="#modeling-yelp-review-ratings-with-regression" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Modeling Yelp Review Ratings with Regression</h3>
-
+<p>We created a linear regression model to predict the continuous numberical ratings including:</p>
+<ul>
+<li>Whether the restaurants take reservation</li>
+<li>The page number it appears in</li>
+<li>The total number of user reviews</li>
+<li>Whether it delivers</li>
+<li>Whether it provides takeout service</li>
+<li>Whether it takes credit card</li>
+<li></li>Whether there is WiFi</li>
+<li>Whether there is TV</li> 
+<li>whether there is outside seating</li>
+<li>Whether it serves alcohol</li>
+<li>Whether is is reported as noisy</li>
+</ul>
+<p>To see how good our model is, we will fit the model using our training (Boston) dataset and see how well we can predict the ratings.</p>
+<img src="https://raw.githubusercontent.com/xud777/Bio260_final_project/gh-pages/images/Prediction_Boston.png" alt="Boston_Predict">
+<p>Our predicted values had a 0.635 correlation with the observed values, which is not bad :). </p>
 <h3>
 <a id="testing-regression-model" class="anchor" href="#testing-regression-model" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Testing Regression Model</h3>
 
