@@ -47,6 +47,7 @@
 
 <p>We explored the wranggled dataset through EDA technoques. Majority of our ratings are 3.5-4.0. We then want to summarize the attributes for the different rating categories and graph the data to see trends. </p>
 <img src="https://raw.githubusercontent.com/xud777/Bio260_final_project/gh-pages/images/Plot1.png" alt="Plot_1">
+<p>Here are the descriptions of the attributes: </p>
 <ul>
 <li>Page - the page number that the restaurant appeared in</li>
 <li>Raters - the number of users providing the rating for the restaurant</li>
@@ -54,7 +55,12 @@
 <li>Alcohol - percentage of restaurants serving alcohol</li>
 <li>Noise - percentage of restaurants that are listed as noisy</li>
 </ul>
-
+<p>Here is what we have noticed: </p>
+<ul>
+<li>Higher rated restaurants tend to appear earlier in the search, except 5.0 restaurants. This is suggest that the Yelp search algorithm tend to return higher rated restaurants first.</li>
+<li>The more reviewers a restaurant has, the more likely it is to have a medium rating. This corresponds with the law of large numbers - the more samples we take, the more likely we are to approach the true mean. In this case, the more ratings (samples) we have, the less likely we get an extreme (2.0 or 5.0) rating.</li>
+<li>The higher rated restaurants are less likely to offer takeout, serve alcohol or be noisy.</li>
+</ul>
 <h3>
 <a id="geographic-distribution-of-yelp-ratings" class="anchor" href="#geographic-distribution-of-yelp-ratings" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Geographic Distribution of Yelp Ratings</h3>
 
